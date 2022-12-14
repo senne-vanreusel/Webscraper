@@ -9,27 +9,33 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CsvHelper;
 
-Console.Clear();
-Console.WriteLine("Webscraper");
-Console.WriteLine("##########");
-Console.WriteLine("What do you want to scrape?");
-Console.WriteLine("Youtube: press Y");
-Console.WriteLine("ict job: press I");
-Console.WriteLine("Rainbow Six Siege Operators: press R");
+main();
 
-string scrape = Console.ReadLine();
+void main()
+{
+    Console.Clear();
+    Console.WriteLine("Webscraper");
+    Console.WriteLine("##########");
+    Console.WriteLine("What do you want to scrape?");
+    Console.WriteLine("Youtube: press Y");
+    Console.WriteLine("ict job: press I");
+    Console.WriteLine("Rainbow Six Siege Operators: press R");
 
-if (scrape.ToLower() == "y")
-{
-    youtube();
-}
-else if (scrape.ToLower() == "i")
-{
-    ictjob();
-}
-else if (scrape.ToLower() == "r")
-{
-    r6();
+    string scrape = Console.ReadLine();
+
+    if (scrape.ToLower() == "y")
+    {
+        youtube();
+    }
+    else if (scrape.ToLower() == "i")
+    {
+        ictjob();
+    }
+    else if (scrape.ToLower() == "r")
+    {
+        r6();
+    }
+
 }
 
 
@@ -101,6 +107,7 @@ void youtube()
 void r6()
 {
     String test_url_1 = "https://www.ubisoft.com/en-gb/game/rainbow-six/siege/game-info/operators";
+    var list = new List<r6>();
 
 
     ChromeDriver driver = new ChromeDriver();
@@ -144,15 +151,29 @@ void r6()
     Thread.Sleep(3000);
 
     IWebElement loadout = driver.FindElement(By.CssSelector("div[class='operator__loadout']"));
-    Console.WriteLine("Name: " + loadout.FindElement(By.XPath("/html/body/div[1]/div[4]/div/div[3]/div[1]/h1")).Text);
 
-    Console.WriteLine("Squad: " + loadout.FindElement(By.XPath("/html/body/div[1]/div[4]/div/div[3]/div[2]/div[1]/div[2]/div[3]/span")).Text);
+    var name = loadout.FindElement(By.XPath("/html/body/div[1]/div[4]/div/div[3]/div[1]/h1")).Text;
+    var squad = loadout.FindElement(By.XPath("/html/body/div[1]/div[4]/div/div[3]/div[2]/div[1]/div[2]/div[3]/span")).Text;
+    var weapons = new List<string>();
+    Console.WriteLine("Name: " + name);
+
+    Console.WriteLine("Squad: " + squad);
     Console.WriteLine("weapons: ");
     foreach (IWebElement element in loadout.FindElements(By.CssSelector("div[class='operator__loadout__category__items'] div[class='operator__loadout__weapon']")))
     {
+        weapons.Add(element.FindElement(By.CssSelector("div[class='operator__loadout__weapon'] p")).Text);
         Console.WriteLine(element.FindElement(By.CssSelector("div[class='operator__loadout__weapon'] p")).Text);
 
     }
+
+    var r6 = new r6
+    {
+        name = name,
+        weapons = weapons,
+        squad = squad,
+    };
+    list.Add(r6);
+    print(r6);
 
     driver.Quit();
 }
@@ -231,7 +252,7 @@ void csv(object obj)
         // Write the object to the CSV file
         writer.WriteRecords((IEnumerable<object>)obj);
     }
-
+    main();
 }
 
 void json(object obj)
@@ -239,6 +260,7 @@ void json(object obj)
     string filename = "C:/Thomas more/2022-2023/Devops & Sec/jsonFile.json";
     string jsonString = JsonSerializer.Serialize(obj);
     File.WriteAllText(filename, jsonString);
+    main();
 }
 
 void print(object obj)
